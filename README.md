@@ -1,0 +1,2 @@
+# redird
+Simple URL redirector.
