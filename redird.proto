@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+// Config represents a config for a redird server.
+message Config {
+  // Required. The host name of the server.
+  string host_name = 1;
+  // Required. The email address of the server admin. (used for ACME only)
+  string email = 2;
+  // Required. The directory to use to store TLS certificates.
+  string cert_dir = 3;
+  // The URLs to redirect, mapped to the name to redirect to.
+  map<string, string> redirect = 4;
+}
