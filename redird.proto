@@ -8,6 +8,37 @@ message Config {
   string email = 2;
   // Required. The directory to use to store TLS certificates.
   string cert_dir = 3;
-  // The URLs to redirect, mapped to the name to redirect to.
-  map<string, string> redirect = 4;
+
+  // The item representing the "root" of the content, served from the root of
+  // the webserver.
+  Item content = 4;
+}
+
+message Item {
+  // Required (except for root category). The name for this item. Must be a
+  // valid URL path segment (per
+  // https://url.spec.whatwg.org/#url-path-segment-string).
+  string name = 1;
+  // A human-readable description of this item.
+  string description = 2;
+
+  // The content contained in a Category-typed item.
+  message CategoryContent {
+    // A human-readable title for this category.
+    string title = 1;
+    // The content items contained in this category.
+    repeated Item item = 2;
+  }
+
+  // The content contained in a Link-typed item.
+  message LinkContent {
+    // Required. The URL to link to. Must be a valid full URL.
+    string url = 1;
+  }
+
+  // Required. The content contained by this item.
+  oneof content {
+    CategoryContent category = 3;
+    LinkContent link = 4;
+  }
 }

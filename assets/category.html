@@ -1,0 +1,39 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=0.5" />
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <title>{{.Title}}</title>
+</head>
+<body>
+    <div class="content">
+        <div class="header">
+            <h1>{{.Title}}</h1>
+        </div>
+        <div class="inner-content">
+            <div>{{.Description}}</div>
+
+            {{if .Categories}}
+            <div>
+                <h2>Subcategories</h2>
+                <ul>
+                    {{range .Categories}}
+                        <li><a href="{{.URL}}">{{.Name}}</a>: {{.Description}}</li>
+                    {{end}}
+                </ul>
+            </div>
+            {{end}}
+            {{if .Links}}
+            <div>
+                <h2>Links</h2>
+                <ul>
+                    {{range .Links}}
+                        <li><a href="{{.URL}}" target="_blank">{{.Name}}</a>: {{.Description}}</li>
+                    {{end}}
+                </ul>
+            </div>
+            {{end}}
+        </div>
+    </div>
+</body>
+</html>

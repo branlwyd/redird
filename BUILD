@@ -3,7 +3,7 @@ load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 
 ##
-## Binaries
+## Binaries.
 ##
 go_binary(
     name = "redird",
@@ -13,6 +13,7 @@ go_binary(
     ],
     pure = "on",
     deps = [
+        ":assets",
         ":redird_go_proto",
         "@com_github_golang_protobuf//proto:go_default_library",
         "@org_golang_x_crypto//acme:go_default_library",
@@ -28,6 +29,7 @@ go_binary(
     ],
     pure = "on",
     deps = [
+        ":assets",
         ":redird_go_proto",
         "@com_github_golang_protobuf//proto:go_default_library",
     ],
@@ -45,4 +47,23 @@ go_proto_library(
     name = "redird_go_proto",
     importpath = "github.com/BranLwyd/redird/redird_go_proto",
     proto = ":redird_proto",
+)
+
+##
+## Static assets.
+##
+go_embed_data(
+    name = "embed_assets",
+    srcs = glob(["assets/**"]),
+    package = "assets",
+    var = "Asset",
+)
+
+go_library(
+    name = "assets",
+    srcs = [
+        "assets.go",
+        ":embed_assets",
+    ],
+    importpath = "github.com/BranLwyd/redird/assets",
 )
