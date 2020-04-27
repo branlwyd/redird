@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/BranLwyd/redird/handler"
 	"golang.org/x/crypto/acme"
 	"golang.org/x/crypto/acme/autocert"
 )
@@ -32,7 +33,7 @@ func serve(hostname, email, certDir string, h http.Handler) {
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
-		Handler:      NewLoggingHandler("https", h),
+		Handler:      handler.NewLoggingHandler("https", h),
 	}
 
 	log.Printf("Serving")

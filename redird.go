@@ -14,12 +14,12 @@ import (
 	"time"
 
 	"github.com/BranLwyd/redird/assets"
+	"github.com/BranLwyd/redird/handler"
 	"github.com/golang/protobuf/proto"
 
 	pb "github.com/BranLwyd/redird/redird_go_proto"
 )
 
-// TODO: general code cleanup; split handlers out to a separate package
 // TODO: all responses are static, so cache/pre-build responses at startup
 // TODO: set cache headers so that clients can cache, too
 
@@ -28,71 +28,6 @@ var (
 
 	categoryViewTmpl = template.Must(template.New("category-view").Parse(string(assets.MustAsset("assets/category.html"))))
 )
-
-type loggingHandler struct {
-	h       http.Handler
-	logName string
-}
-
-func (lh loggingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Strip port from remote address, as the client port is not useful information.
-	ra := r.RemoteAddr
-	idx := strings.LastIndex(ra, ":")
-	if idx != -1 {
-		ra = ra[:idx]
-	}
-	log.Printf("[%s] %s requested %s", lh.logName, ra, r.RequestURI)
-	lh.h.ServeHTTP(w, r)
-}
-
-func NewLoggingHandler(logName string, h http.Handler) http.Handler {
-	return loggingHandler{
-		h:       h,
-		logName: logName,
-	}
-}
-
-type secureHeaderHandler struct {
-	h http.Handler
-}
-
-func (shh secureHeaderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
-	w.Header().Add("X-Frame-Options", "DENY")
-	w.Header().Add("X-XSS-Protection", "1; mode=block")
-	w.Header().Add("X-Content-Type-Options", "nosniff")
-	w.Header().Add("Content-Security-Policy", "default-src 'self'; style-src-elem 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com")
-
-	shh.h.ServeHTTP(w, r)
-}
-
-func NewSecureHeaderHandler(h http.Handler) http.Handler { return secureHeaderHandler{h} }
-
-// staticHandler serves static content from memory.
-type staticHandler struct {
-	content     []byte
-	contentType string
-}
-
-func newStatic(content []byte, contentType string) staticHandler {
-	return staticHandler{
-		content:     content,
-		contentType: contentType,
-	}
-}
-
-func mustNewAsset(name, contentType string) staticHandler {
-	asset, ok := assets.Asset[name]
-	if !ok {
-		panic(fmt.Sprintf("No such asset %q", name))
-	}
-	return newStatic(asset, contentType)
-}
-
-func (sh staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", sh.contentType)
-	http.ServeContent(w, r, "", time.Time{}, bytes.NewReader(sh.content))
-}
 
 type urlRedirector struct {
 	itemByPath map[string]*pb.Item
@@ -262,7 +197,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/style.css", mustNewAsset("assets/style.css", "text/css; charset=utf-8"))
+	mux.Handle("/style.css", handler.Must(handler.NewAsset("assets/style.css", "text/css; charset=utf-8")))
 	mux.Handle("/", urlRedirector{itemByPath})
-	serve(cfg.HostName, cfg.Email, cfg.CertDir, NewSecureHeaderHandler(mux))
+	serve(cfg.HostName, cfg.Email, cfg.CertDir, handler.NewSecureHeaderHandler(mux))
 }

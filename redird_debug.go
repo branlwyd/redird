@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/BranLwyd/redird/handler"
 )
 
 func serve(hostname, _, _ string, h http.Handler) {
@@ -76,7 +78,7 @@ func serve(hostname, _, _ string, h http.Handler) {
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
 		Addr:         ":8080",
-		Handler:      NewLoggingHandler("debug", h),
+		Handler:      handler.NewLoggingHandler("debug", h),
 	}
 	log.Printf("Serving debug on %s:8080", hostname)
 	log.Fatalf("ListenAndServeTLS: %v", server.ListenAndServeTLS("", ""))
