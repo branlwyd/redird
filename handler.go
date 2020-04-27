@@ -2,6 +2,8 @@ package handler
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"net/http"
@@ -54,12 +56,15 @@ func NewSecureHeaderHandler(h http.Handler) http.Handler { return secureHeaderHa
 type staticHandler struct {
 	content     []byte
 	contentType string
+	tag         string
 }
 
 func NewStatic(content []byte, contentType string) http.Handler {
+	h := sha256.Sum256(content)
 	return staticHandler{
 		content:     content,
 		contentType: contentType,
+		tag:         fmt.Sprintf(`"%s"`, base64.RawURLEncoding.EncodeToString(h[:])),
 	}
 }
 
@@ -73,6 +78,7 @@ func NewAsset(name, contentType string) (http.Handler, error) {
 
 func (sh staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", sh.contentType)
+	w.Header().Set("ETag", sh.tag)
 	http.ServeContent(w, r, "", time.Time{}, bytes.NewReader(sh.content))
 }
 

@@ -21,7 +21,6 @@ import (
 )
 
 // TODO: all responses are static, so cache/pre-build responses at startup
-// TODO: set cache headers so that clients can cache, too
 
 var (
 	configFile = flag.String("config", "", "The redird configuration file to use.")
