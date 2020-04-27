@@ -82,6 +82,39 @@ func (sh staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.ServeContent(w, r, "", time.Time{}, bytes.NewReader(sh.content))
 }
 
+type redirectHandler struct {
+	redirectURL string
+}
+
+func (rh redirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, rh.redirectURL, http.StatusFound)
+}
+
+func NewRedirect(redirectURL string) http.Handler {
+	return redirectHandler{redirectURL: redirectURL}
+}
+
+// filteredHandler filters a handler to only serve one path; anything else is given a 404.
+type filteredHandler struct {
+	allowedPath string
+	h           http.Handler
+}
+
+func NewFiltered(allowedPath string, h http.Handler) http.Handler {
+	return filteredHandler{
+		allowedPath: allowedPath,
+		h:           h,
+	}
+}
+
+func (fh filteredHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != fh.allowedPath {
+		http.NotFound(w, r)
+	} else {
+		fh.h.ServeHTTP(w, r)
+	}
+}
+
 func Must(h http.Handler, err error) http.Handler {
 	if err != nil {
 		panic(fmt.Sprintf("Could not create HTTP handler: %v", err))
