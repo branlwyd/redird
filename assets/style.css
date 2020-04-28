@@ -37,15 +37,6 @@ p {
   padding: 2em 4em;
 }
 
-.controls {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  margin-bottom: 0.2em;
-  margin-right: 0.2em;
-  font-size: small;
-}
-
 .content h1 {
   text-align: center;
   font-style: italic;
@@ -57,4 +48,13 @@ h2 {
 
 ul {
   margin: 0;
+}
+
+div.image-box {
+  text-align: center;
+  margin-bottom: 4em;
+}
+
+span.image-caption {
+  display: block;
 }

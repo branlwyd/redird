@@ -33,6 +33,14 @@
                 </ul>
             </div>
             {{end}}
+            {{if .Images}}
+            <div>
+                <h2>Images</h2>
+                {{range .Images}}
+                <div class="image-box"><a href="{{.URL}}" target="_blank"><img src="{{.URL}}"></a><span class="image-caption"><a href="{{.URL}}" target="_blank">{{.Name}}</a>: {{.Description}}</span></div>
+                {{end}}
+            </div>
+            {{end}}
         </div>
     </div>
 </body>

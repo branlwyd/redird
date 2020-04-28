@@ -45,7 +45,7 @@ func (shh secureHeaderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	w.Header().Add("X-Frame-Options", "DENY")
 	w.Header().Add("X-XSS-Protection", "1; mode=block")
 	w.Header().Add("X-Content-Type-Options", "nosniff")
-	w.Header().Add("Content-Security-Policy", "default-src 'self'; style-src-elem 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com")
+	w.Header().Add("Content-Security-Policy", "default-src 'self'; style-src-elem 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src *")
 
 	shh.h.ServeHTTP(w, r)
 }

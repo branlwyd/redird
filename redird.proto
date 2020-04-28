@@ -36,9 +36,15 @@ message Item {
     string url = 1;
   }
 
+  message ImageContent {
+    // Required. The URL of the image file to display/link to. Must be a valid full URL.
+    string url = 1;
+  }
+
   // Required. The content contained by this item.
   oneof content {
     CategoryContent category = 3;
     LinkContent link = 4;
+    ImageContent image = 5;
   }
 }

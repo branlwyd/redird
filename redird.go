@@ -91,11 +91,21 @@ func parseAndVerifyItem(pth string, item *pb.Item, mux *http.ServeMux) error {
 	case *pb.Item_Link:
 		// Validate.
 		if c.Link.Url == "" {
-			return fmt.Errorf("item %q invalid: missing url")
+			return fmt.Errorf("item %q invalid: missing url", pth)
 		}
 
 		// Update mux.
 		mux.Handle(pth, handler.NewFiltered(pth, handler.NewRedirect(c.Link.Url)))
+		return nil
+
+	case *pb.Item_Image:
+		// Validate.
+		if c.Image.Url == "" {
+			return fmt.Errorf("item %q invalid: missing url", pth)
+		}
+
+		// Update mux.
+		mux.Handle(pth, handler.NewFiltered(pth, handler.NewRedirect(c.Image.Url)))
 		return nil
 
 	case nil:
@@ -120,8 +130,14 @@ func categoryHandler(pth string, itm *pb.Item) (http.Handler, error) {
 		URL         string
 		Description string
 	}
+	type Image struct {
+		Name        string
+		URL         string
+		Description string
+	}
 	var cats []Category
 	var links []Link
+	var imgs []Image
 	for _, subItm := range cat.Item {
 		switch c := subItm.Content.(type) {
 		case *pb.Item_Category:
@@ -138,8 +154,15 @@ func categoryHandler(pth string, itm *pb.Item) (http.Handler, error) {
 				Description: subItm.Description,
 			})
 
+		case *pb.Item_Image:
+			imgs = append(imgs, Image{
+				Name:        subItm.Name,
+				URL:         path.Join(pth, subItm.Name),
+				Description: subItm.Description,
+			})
+
 		default:
-			return nil, fmt.Errorf("unknown content item type %T", c)
+			return nil, fmt.Errorf("content item %q has unknown type %T", subItm.Name, c)
 		}
 	}
 
@@ -149,7 +172,8 @@ func categoryHandler(pth string, itm *pb.Item) (http.Handler, error) {
 		Description string
 		Categories  []Category
 		Links       []Link
-	}{cat.Title, itm.Description, cats, links}); err != nil {
+		Images      []Image
+	}{cat.Title, itm.Description, cats, links, imgs}); err != nil {
 		return nil, fmt.Errorf("could not execute category-view template: %v", err)
 	}
 	return handler.NewFiltered(pth, handler.NewStatic(buf.Bytes(), "text/html; charset=utf-8")), nil
