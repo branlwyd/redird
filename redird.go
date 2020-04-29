@@ -42,6 +42,7 @@ func parseAndVerifyConfig(cfgBytes []byte) (*pb.Config, http.Handler, error) {
 	}
 
 	mux := http.NewServeMux()
+	mux.Handle("/favicon.ico", handler.Must(handler.NewAsset("assets/favicon.ico", "image/x-icon")))
 	mux.Handle("/style.css", handler.Must(handler.NewAsset("assets/style.css", "text/css; charset=utf-8")))
 
 	if err := parseAndVerifyItem("/", cfg.Content, mux); err != nil {
